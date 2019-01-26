@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using WorshopAspnetCore.Models;
@@ -9,7 +10,7 @@ namespace WorshopAspnetCore.Controllers
     [Route("api/cities")]
     public class PointsOfInterestController : Controller
     {
-        [HttpGet("{cityId}/pointsofinterest")]
+        [HttpGet("{cityId}/pointsofinterest", Name = "GetCities")]
         public IActionResult GetPointsOfInterest(string cityId)
         {
             var city = CityDataStore.Current.Cities.FirstOrDefault(p => p.Id == new Guid(cityId));
@@ -120,6 +121,72 @@ namespace WorshopAspnetCore.Controllers
             existPointOfInterest.Description = pointOfInterest.Description;
 
             return Ok(existPointOfInterest);
+        }
+
+        [HttpPatch("{cityId}/pointsofinterest/{id}")]
+        public IActionResult PartiallyUpdatePointOfInterest(string cityId, string id, [FromBody] JsonPatchDocument<PointOfInterestUpdated> pathDoc)
+        {
+            if (pathDoc == null)
+            {
+                return BadRequest();
+            }
+
+            var city = CityDataStore.Current.Cities.FirstOrDefault(p => p.Id == new Guid(cityId));
+
+            if (city == null)
+            {
+                return NotFound();
+            }
+
+            var pointOfInterestFromStore = city.PointOfInterest.FirstOrDefault(p => p.Id == new Guid(id));
+
+            if (pointOfInterestFromStore == null)
+            {
+                return NotFound();
+            }
+
+            var pointOfInterestToPath = new PointOfInterestUpdated()
+            {
+                Name = pointOfInterestFromStore.Name,
+                Description = pointOfInterestFromStore.Description
+            };
+
+            pathDoc.ApplyTo(pointOfInterestToPath, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            pointOfInterestFromStore.Name = pointOfInterestToPath.Name;
+            pointOfInterestFromStore.Description = pointOfInterestToPath.Description;
+
+            return Ok(pointOfInterestFromStore);
+        }
+
+        [HttpDelete("{cityId}/pointsofinterest/{id}")]
+        public IActionResult DeletePointOFInterest(string cityId, string id)
+        {
+            var city = CityDataStore.Current.Cities.FirstOrDefault(p => p.Id == new Guid(cityId));
+            if (city == null)
+            {
+                return NotFound();
+            }
+
+            var existPointOfInterest = city.PointOfInterest.FirstOrDefault(p => p.Id == new Guid(id));
+
+            if (existPointOfInterest == null)
+            {
+                return NotFound();
+            }
+
+            city.PointOfInterest.Remove(existPointOfInterest);
+
+            return CreatedAtRoute("GetCities",
+              new
+              {
+                  cityId = city.Id.ToString(),
+              }, city);
         }
     }
 }
