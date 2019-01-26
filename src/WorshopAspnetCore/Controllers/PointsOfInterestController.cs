@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using WorshopAspnetCore.Models;
+using WorshopAspnetCore.Models.PointOfInterest;
 
 namespace WorshopAspnetCore.Controllers
 {
@@ -49,6 +50,16 @@ namespace WorshopAspnetCore.Controllers
                 return BadRequest();
             }
 
+            if (pointOfInterest.Description == pointOfInterest.Name)
+            {
+                ModelState.AddModelError("Description", "The provided description should be different fron the name!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var city = CityDataStore.Current.Cities.FirstOrDefault(p => p.Id == new Guid(cityId));
 
             if (city == null)
@@ -71,6 +82,44 @@ namespace WorshopAspnetCore.Controllers
                     cityId = city.Id.ToString(),
                     id = newPointOfInterest.Id.ToString()
                 }, newPointOfInterest);
+        }
+
+        [HttpPut("{cityId}/pointsofinterest/{id}")]
+        public IActionResult UpdatePointOfInterest(string cityId, string id, [FromBody] PointOfInterestUpdated pointOfInterest)
+        {
+            if (pointOfInterest == null)
+            {
+                return BadRequest();
+            }
+
+            if (pointOfInterest.Description == pointOfInterest.Name)
+            {
+                ModelState.AddModelError("Description", "The provided description should be different fron the name!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var city = CityDataStore.Current.Cities.FirstOrDefault(p => p.Id == new Guid(cityId));
+
+            if (city == null)
+            {
+                return NotFound();
+            }
+
+            var existPointOfInterest = city.PointOfInterest.FirstOrDefault(p => p.Id == new Guid(id));
+
+            if (existPointOfInterest == null)
+            {
+                return NotFound();
+            }
+
+            existPointOfInterest.Name = pointOfInterest.Name;
+            existPointOfInterest.Description = pointOfInterest.Description;
+
+            return Ok(existPointOfInterest);
         }
     }
 }
