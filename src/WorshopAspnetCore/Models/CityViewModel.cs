@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace WorshopAspnetCore.Models
 {
-    public class CityViewModel
+    public sealed class CityViewModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

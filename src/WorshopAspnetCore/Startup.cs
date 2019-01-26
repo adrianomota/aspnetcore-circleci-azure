@@ -22,7 +22,7 @@ namespace WorshopAspnetCore
         {
             services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                    .AddMvcOptions(O => O.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter())); //de acordo com Accept ele retorna json ou xml
+                    .AddMvcOptions(O => O.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

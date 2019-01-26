@@ -2,7 +2,7 @@
 
 namespace WorshopAspnetCore.Models
 {
-    public class PointOfInterestViewModel
+    public sealed class PointOfInterestViewModel
     {
         public Guid Id { get; set; }
 
