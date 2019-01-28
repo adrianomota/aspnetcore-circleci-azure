@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using WorshopAspnetCore.Repositories.CityRepository;
+using WorshopAspnetCore.Repositories.Interfaces;
 
 namespace WorshopAspnetCore
 {
@@ -27,6 +29,8 @@ namespace WorshopAspnetCore
 
             var connectinString = Configuration["connectionstring:conn_dev"];
             services.AddDbContext<CityInfoContext>(o => o.UseSqlServer(connectinString));
+
+            services.AddScoped<ICityRepository, CityRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
